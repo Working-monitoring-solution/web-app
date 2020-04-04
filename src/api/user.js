@@ -11,22 +11,37 @@ export function login(data) {
 export function validateToken(token) {
   return request({
     url: '/admin/validate-token',
-    method: 'get',
-    params: { token }
+    method: 'post'
   })
 }
 
-// export function getInfo(token) {
-//   return request({
-//     url: '/vue-admin-template/user/info',
-//     method: 'get',
-//     params: { token }
-//   })
-// }
-
-export function logout() {
+export function getUsers(page) {
   return request({
-    url: '/vue-admin-template/user/logout',
+    url: '/admin/get-users',
+    method: 'post',
+    params: { page }
+  })
+}
+
+export function changeActiveStatus(id) {
+  return request({
+    url: '/admin/change-active-status',
+    method: 'post',
+    params: { id }
+  })
+}
+
+export function getUsersInfo() {
+  return request({
+    url: '/admin/get-all-users-info',
     method: 'post'
+  })
+}
+
+export function createUser(user) {
+  return request({
+    url: '/admin/create-user',
+    method: 'post',
+    data: user
   })
 }

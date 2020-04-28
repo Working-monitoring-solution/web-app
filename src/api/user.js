@@ -45,3 +45,27 @@ export function createUser(user) {
     data: user
   })
 }
+
+export function searchByName(name, page) {
+  return request({
+    url: '/admin/find-users-by-name',
+    method: 'post',
+    params: { name, page }
+  })
+}
+
+export function searchByEmail(email, page) {
+  return request({
+    url: '/admin/find-users-by-email',
+    method: 'post',
+    params: { email, page }
+  })
+}
+
+export function searchByNameAndEmail(name, email, page) {
+  return request({
+    url: '/admin/find-users-by-email-and-name',
+    method: 'post',
+    params: { name, email, page }
+  })
+}

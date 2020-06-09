@@ -8,18 +8,18 @@ export function login(data) {
   })
 }
 
-export function validateToken(token) {
+export function validateToken() {
   return request({
     url: '/admin/validate-token',
     method: 'post'
   })
 }
 
-export function getUsers(page) {
+export function searchUsers(page, name, email, position, department) {
   return request({
-    url: '/admin/get-users',
+    url: '/admin/search-users',
     method: 'post',
-    params: { page }
+    params: { page, name, email, position, department }
   })
 }
 
@@ -31,10 +31,18 @@ export function changeActiveStatus(id) {
   })
 }
 
-export function getUsersInfo() {
+export function changeRoleAdmin(id) {
   return request({
-    url: '/admin/get-all-users-info',
-    method: 'post'
+    url: '/admin/change-role-admin-status',
+    method: 'post',
+    params: { id }
+  })
+}
+
+export function getManagers() {
+  return request({
+    url: '/admin/get-all-manager',
+    method: 'get'
   })
 }
 
@@ -46,26 +54,25 @@ export function createUser(user) {
   })
 }
 
-export function searchByName(name, page) {
+export function getDepartment() {
   return request({
-    url: '/admin/find-users-by-name',
-    method: 'post',
-    params: { name, page }
+    url: '/admin/get-department',
+    method: 'get'
   })
 }
 
-export function searchByEmail(email, page) {
+export function getPosition(departmentId) {
   return request({
-    url: '/admin/find-users-by-email',
-    method: 'post',
-    params: { email, page }
+    url: '/admin/get-position',
+    method: 'get',
+    params: { departmentId }
   })
 }
 
-export function searchByNameAndEmail(name, email, page) {
+export function logout() {
   return request({
-    url: '/admin/find-users-by-email-and-name',
-    method: 'post',
-    params: { name, email, page }
+    url: '/logout',
+    method: 'get'
   })
 }
+

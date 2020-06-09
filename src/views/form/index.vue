@@ -33,6 +33,59 @@
           />
         </el-col>
       </el-form-item>
+      <el-form-item label="Manger">
+        <el-col>
+          <el-select
+            v-model="form.managerId"
+            placeholder="Please select employee's manager"
+            clearable
+          >
+            <el-option
+              v-for="item in listManager"
+              :key="item.id"
+              :label="item.email"
+              :value="item.id"
+            >
+              <span style="float: left">{{ item.email }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{ item.name }}</span>
+            </el-option>
+          </el-select>
+        </el-col>
+      </el-form-item>
+      <el-form-item label="Department">
+        <el-col>
+          <el-select
+            v-model="form.departmentId"
+            placeholder="Please select employee's department"
+            clearable
+            @change="getListPosition"
+          >
+            <el-option
+              v-for="item in listDepartment"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-col>
+      </el-form-item>
+      <el-form-item label="Position">
+        <el-select
+          v-model="form.positionId"
+          placeholder="Please select employee's position"
+          clearable
+        >
+          <el-option
+            v-for="item in listPosition"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Role admin" class="switch">
+        <el-switch v-model="form.roleAdmin" />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('form')">Submit</el-button>
         <el-button @click="resetForm('form')">Reset</el-button>
@@ -42,7 +95,7 @@
 </template>
 
 <script>
-import { createUser } from '@/api/user'
+import { createUser, getManagers, getDepartment, getPosition } from '@/api/user'
 
 export default {
   data() {
@@ -83,7 +136,11 @@ export default {
         name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        roleAdmin: false,
+        managerId: '',
+        departmentId: '',
+        positionId: ''
       },
       rules: {
         name: [
@@ -98,8 +155,19 @@ export default {
         confirmPassword: [
           { validator: validateConfirmPassword, trigger: 'blur' }
         ]
-      }
+      },
+      listManager: [],
+      listDepartment: [],
+      listPosition: []
     }
+  },
+  created: function() {
+    getManagers().then(response => {
+      this.listManager = response.data
+    })
+    getDepartment().then(response => {
+      this.listDepartment = response.data
+    })
   },
   methods: {
     submitForm(formName) {
@@ -108,30 +176,37 @@ export default {
         const user = {
           name: this.form.name,
           email: this.form.email,
-          password: this.form.password
+          password: this.form.password,
+          managerId: this.form.managerId,
+          departmentId: this.form.departmentId,
+          positionId: this.form.positionId,
+          roleAdmin: this.form.roleAdmin
         }
         createUser(user).then(response => {
           this.$message({
             message: 'Create user success!',
             type: 'success'
           })
-          this.$refs[formName].resetFields()
-        }).catch(error => {
-          console.log(error)
+          this.resetForm(formName)
         })
+      })
+    },
+    getListPosition() {
+      getPosition(this.form.departmentId).then(response => {
+        this.listPosition = response.data
       })
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
+      this.form.managerId = undefined
+      this.form.positionId = undefined
+      this.form.departmentId = undefined
     }
   }
 }
 </script>
 
 <style scoped>
-.line{
-  text-align: center;
-}
 .show-pwd {
   position: absolute;
   right: 10px;
@@ -146,6 +221,12 @@ export default {
 }
 .app-container {
   text-align: center;
+}
+.el-select {
+  width: 100%;
+}
+.switch {
+  text-align: left;
 }
 </style>
 

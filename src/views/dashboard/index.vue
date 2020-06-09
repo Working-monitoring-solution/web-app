@@ -6,7 +6,7 @@
           v-model="formSearch.name"
           type="text"
           placeholder="name"
-          @keyup.enter.native="searchUser"
+          @keyup.enter.native="search"
         />
       </el-form-item>
       <el-form-item label="or" prop="email">
@@ -18,7 +18,7 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="searchUser">Search</el-button>
+        <el-button type="primary" @click="search">Search</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -34,27 +34,32 @@
           {{ scope.row.id }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Name" min-width="170">
+      <el-table-column align="center" label="Name" min-width="150">
         <template slot-scope="scope">
           {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Email" min-width="170">
+      <el-table-column align="center" label="Email" min-width="150">
         <template slot-scope="scope">
           {{ scope.row.email }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Status" min-width="50">
+      <el-table-column align="center" label="Status" min-width="60">
         <template slot-scope="scope">
           <el-switch :value="scope.row.active" @change="changeStatus(scope.row.id)" />
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Created Date" min-width="100">
+      <el-table-column align="center" label="Role admin" min-width="70">
+        <template slot-scope="scope">
+          <el-switch :value="scope.row.roleAdmin" @change="changeRoleAdmin(scope.row.id)" />
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="Created Date" min-width="90">
         <template slot-scope="scope">
           {{ scope.row.createdDate }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Operations" min-width="60">
+      <el-table-column align="center" label="Operations" min-width="70">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="handleDetail(scope.row.id)">Detail</el-button>
         </template>
@@ -74,7 +79,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getUsers, changeActiveStatus, getUsersInfo, searchByName, searchByEmail, searchByNameAndEmail } from '@/api/user'
+import { searchUsers, changeActiveStatus, changeRoleAdmin } from '@/api/user'
 
 export default {
   name: 'Dashboard',
@@ -91,7 +96,9 @@ export default {
     return {
       formSearch: {
         name: '',
-        email: ''
+        email: '',
+        position: '',
+        department: ''
       },
       rules: {
         name: [
@@ -115,82 +122,49 @@ export default {
     ])
   },
   created() {
-    getUsersInfo().then(response => {
-      this.totalPages = response.data.pagesCount
-      this.totalUser = response.data.usersCount
+    searchUsers(0, '', '', '', '').then(response => {
+      this.totalPages = response.data.totalPages
+      this.totalUser = response.data.totalElements
+      this.listUsers = response.data.content
+      this.listLoading = false
     })
-    this.getPage(0)
   },
   methods: {
-    searchUser() {
+    search() {
       this.$refs.formSearch.validate(valid => {
         this.currentPage = 0
-        console.log('start search')
         this.getPageSearch(0)
       })
     },
-    getPageSearch(pageNumber) {
-      if (this.formSearch.name.trim() === '' && this.formSearch.email.trim() !== '') {
-        console.log('serach by email')
-        this.listLoading = true
-        searchByEmail(this.formSearch.email, pageNumber).then(response => {
-          this.listUsers = response.data.userList
-          this.totalPages = response.data.pagesCount
-          this.totalUser = response.data.usersCount
-          this.listLoading = false
-        }).catch(error => {
-          console.log(error)
-        })
-      }
-      if (this.formSearch.name.trim() !== '' && this.formSearch.email.trim() === '') {
-        console.log('serach by name')
-        this.listLoading = true
-        searchByName(this.formSearch.name, pageNumber).then(response => {
-          this.listUsers = response.data.userList
-          this.totalPages = response.data.pagesCount
-          this.totalUser = response.data.usersCount
-          this.listLoading = false
-        }).catch(error => {
-          console.log(error)
-        })
-      }
-      if (this.formSearch.name.trim() !== '' && this.formSearch.email.trim() !== '') {
-        console.log('serach by email and name')
-        this.listLoading = true
-        searchByNameAndEmail(this.formSearch.name, this.formSearch.email, pageNumber).then(response => {
-          this.listUsers = response.data.userList
-          this.totalPages = response.data.pagesCount
-          this.totalUser = response.data.usersCount
-          this.listLoading = false
-        }).catch(error => {
-          console.log(error)
-        })
-      }
-      if (this.formSearch.name.trim() === '' && this.formSearch.email.trim() === '') {
-        console.log('no search')
-        this.getPage(pageNumber)
-      }
-    },
-    getPage(pageNumber) {
+    getPageSearch(page) {
       this.listLoading = true
-      getUsers(pageNumber).then(response => {
-        this.listUsers = response.data
-        this.listLoading = false
-      }).catch(error => {
-        console.log(error)
-      })
+      searchUsers(page,
+        this.formSearch.name,
+        this.formSearch.email,
+        this.formSearch.position,
+        this.formSearch.department)
+        .then(response => {
+          this.totalPages = response.data.totalPages
+          this.totalUser = response.data.totalElements
+          this.listUsers = response.data.content
+          this.listLoading = false
+        })
     },
     changeStatus(id) {
       changeActiveStatus(id).then(response => {
-        this.getPage(this.currentPage - 1)
+        this.getPageSearch(this.currentPage - 1)
+      })
+    },
+    changeRoleAdmin(id) {
+      changeRoleAdmin(id).then(response => {
+        this.getPageSearch(this.currentPage - 1)
       })
     },
     handleCurrentChange() {
-      if (this.formSearch.name.trim() !== '' || this.formSearch.email.trim() !== '') {
-        this.getPageSearch(this.currentPage - 1)
-      } else {
-        this.getPage(this.currentPage - 1)
-      }
+      this.getPageSearch(this.currentPage - 1)
+    },
+    handleDetail(id) {
+      this.$router.push({ name: 'Detail', params: { id: id }})
     }
   }
 }

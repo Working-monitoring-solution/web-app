@@ -3,7 +3,7 @@
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
+          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="renderTitle(onlyOneChild.meta.title)" />
         </el-menu-item>
       </app-link>
     </template>
@@ -30,6 +30,7 @@ import { isExternal } from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
+import { countPendingRequest } from '@/api/request'
 
 export default {
   name: 'SidebarItem',
@@ -54,9 +55,20 @@ export default {
     // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237
     // TODO: refactor with render function
     this.onlyOneChild = null
-    return {}
+    return {
+      count: 'a'
+    }
+  },
+  created() {
+    countPendingRequest().then(response => {
+      this.count = response.data
+    })
   },
   methods: {
+    renderTitle(title) {
+      if (title === 'Request') return `Request (${this.count})`
+      return title
+    },
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {
         if (item.hidden) {

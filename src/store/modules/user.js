@@ -1,12 +1,12 @@
-import { login, validateToken } from '@/api/user'
+import { login, validateToken, logout } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: 'WMS Admin',
-    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
+    name: '',
+    avatar: ''
   }
 }
 
@@ -18,6 +18,12 @@ const mutations = {
   },
   SET_TOKEN: (state, token) => {
     state.token = token
+  },
+  SET_NAME: (state, name) => {
+    state.name = name
+  },
+  SET_AVATAR: (state, avatar) => {
+    state.avatar = avatar
   }
 }
 
@@ -40,10 +46,17 @@ const actions = {
   validateToken({ commit, state }) {
     return new Promise((resolve, reject) => {
       validateToken(state.token).then(response => {
-        if (!response.data) {
+        const { data } = response
+
+        if (!data) {
           reject('Verification failed, please Login again.')
         }
-        resolve()
+
+        const { name, avatar } = data
+
+        commit('SET_NAME', name)
+        commit('SET_AVATAR', avatar)
+        resolve(data)
       }).catch(error => {
         reject(error)
       })
@@ -53,7 +66,8 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      removeToken() // must remove  token  first
+      logout()
+      removeToken()
       resetRouter()
       commit('RESET_STATE')
       resolve()
@@ -63,7 +77,7 @@ const actions = {
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      removeToken() // must remove  token  first
+      removeToken()
       commit('RESET_STATE')
       resolve()
     })

@@ -22,14 +22,14 @@
             {{ scope.row.date }}
           </template>
         </el-table-column>
-        <el-table-column align="center" label="User ID" min-width="80">
+        <el-table-column align="center" label="User" min-width="80">
           <template slot-scope="scope">
-            {{ scope.row.user === null ? null : scope.row.user.id }}
+            {{ scope.row.user === null ? null : scope.row.user.email }}
           </template>
         </el-table-column>
-        <el-table-column align="center" label="Manager ID" min-width="80">
+        <el-table-column align="center" label="Manager" min-width="80">
           <template slot-scope="scope">
-            {{ scope.row.manager === null ? null : scope.row.manager.id }}
+            {{ scope.row.manager === null ? null : scope.row.manager.email }}
           </template>
         </el-table-column>
         <el-table-column align="center" label="Reason" min-width="200">

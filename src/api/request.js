@@ -26,7 +26,7 @@ export function getHandledRequest(page) {
 export function approveRequest(requestId) {
   return request({
     url: '/working-date/approve-request',
-    method: 'get',
+    method: 'put',
     params: { requestId }
   })
 }
@@ -34,7 +34,7 @@ export function approveRequest(requestId) {
 export function denyRequest(requestId) {
   return request({
     url: '/working-date/deny-request',
-    method: 'get',
+    method: 'put',
     params: { requestId }
   })
 }

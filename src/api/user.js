@@ -11,14 +11,14 @@ export function login(data) {
 export function validateToken() {
   return request({
     url: '/admin/validate-token',
-    method: 'post'
+    method: 'get'
   })
 }
 
 export function searchUsers(page, name, email, position, department) {
   return request({
     url: '/admin/search-users',
-    method: 'post',
+    method: 'get',
     params: { page, name, email, position, department }
   })
 }
@@ -26,7 +26,7 @@ export function searchUsers(page, name, email, position, department) {
 export function changeActiveStatus(id) {
   return request({
     url: '/admin/change-active-status',
-    method: 'post',
+    method: 'put',
     params: { id }
   })
 }
@@ -34,7 +34,7 @@ export function changeActiveStatus(id) {
 export function changeRoleAdmin(id) {
   return request({
     url: '/admin/change-role-admin-status',
-    method: 'post',
+    method: 'put',
     params: { id }
   })
 }
